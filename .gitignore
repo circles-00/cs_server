@@ -1,3 +1,5 @@
-server/*
+packages/cstrike/server/*
 
-!server/.gitkeep
+!packages/cstrike/server/.gitkeep
+
+/start_server.sh

@@ -6,7 +6,7 @@ services:
     container_name: cs_server-${PORT}
     environment:
       - PORT
-      - MAP=de_dust2
+      - START_MAP=de_dust2
       - MAX_PLAYERS=32
     ports:
       - ${PORT}:${PORT}/udp

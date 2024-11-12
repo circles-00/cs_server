@@ -15,6 +15,4 @@ WORKDIR /home/cstrike
 
 COPY --chown=cstrike:cstrike ./server .
 
-EXPOSE 27015
-
-ENTRYPOINT ./hlds_run -game cstrike -strictportbind -ip 0.0.0.0 -port $PORT +map $MAP maxplayers $MAX_PLAYERS -pingboost 3 -sys_ticrate 1000
+ENTRYPOINT ./hlds_run -game cstrike -strictportbind -ip 0.0.0.0 -port $PORT +map $START_MAP -maxplayers $MAX_PLAYERS -pingboost 3 -sys_ticrate 1000
