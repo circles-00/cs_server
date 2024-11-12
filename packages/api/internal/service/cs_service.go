@@ -6,10 +6,14 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"net"
 	"os"
 	"os/exec"
+	"time"
 
 	"api/internal/database/db"
+
+	"github.com/rumblefrog/go-a2s"
 )
 
 type CsServerPayload struct {
@@ -17,8 +21,24 @@ type CsServerPayload struct {
 	MaxPlayers int
 }
 
+type CsServerStatusPayload struct {
+	// ip:port
+	IpAddress string `json:"ipAddress"`
+}
+
 type CsService struct {
 	db *db.Queries
+}
+
+type ServerInfo struct {
+	Details  *a2s.ServerInfo
+	MapImage string
+}
+
+type CsServerStatusResponse struct {
+	ServerInfo ServerInfo
+	PlayerInfo *a2s.PlayerInfo
+	Ping       int
 }
 
 func NewCsService(db *db.Queries) *CsService {
@@ -92,4 +112,90 @@ func (s *CsService) RegisterServer(ctx context.Context, csServer CsServerPayload
 	})
 
 	return int(availablePort.Port), nil
+}
+
+func pingServer(ipAddress string) (int, error) {
+	// Note: See https://developer.valvesoftware.com/wiki/Server_queries#A2A_PING
+	const a2aPing = "\xFF\xFF\xFF\xFF\x69"
+
+	conn, err := net.Dial("udp", ipAddress)
+	if err != nil {
+		return 0, fmt.Errorf("failed to connect to server: %w", err)
+	}
+	defer conn.Close()
+
+	conn.SetDeadline(time.Now().Add(5 * time.Second))
+
+	totalTime := 0
+	tries := 5
+
+	for i := 0; i < tries; i++ {
+		start := time.Now()
+		_, err = conn.Write([]byte(a2aPing))
+		if err != nil {
+			return 0, fmt.Errorf("failed to send ping: %w", err)
+		}
+
+		buffer := make([]byte, 4096)
+		_, err = conn.Read(buffer)
+		if err != nil {
+			return 0, fmt.Errorf("failed to receive response: %w", err)
+		}
+		elapsed := time.Since(start)
+
+		totalTime += int(elapsed.Milliseconds())
+	}
+
+	averageLatency := totalTime / tries
+
+	return averageLatency, nil
+}
+
+func (s *CsService) GetServerList(ctx context.Context) ([]CsServerStatusResponse, error) {
+	machineIpAddress := os.Getenv("IP_ADDRESS")
+	servers, err := s.db.GetServers(ctx)
+	if err != nil {
+		return []CsServerStatusResponse{}, errors.New("cannot fetch servers from db")
+	}
+
+	serverStatuses := []CsServerStatusResponse{}
+
+	for _, server := range servers {
+		status, _ := s.GetServerStatus(ctx, CsServerStatusPayload{IpAddress: fmt.Sprintf("%s:%d", machineIpAddress, server.Port)})
+		serverStatuses = append(serverStatuses, status)
+	}
+
+	return serverStatuses, nil
+}
+
+func (s *CsService) GetServerStatus(ctx context.Context, payload CsServerStatusPayload) (CsServerStatusResponse, error) {
+	client, err := a2s.NewClient(payload.IpAddress)
+	if err != nil {
+		return CsServerStatusResponse{}, errors.New("error fetching status for server")
+	}
+
+	serverInfo, err := client.QueryInfo()
+	if err != nil {
+		return CsServerStatusResponse{}, errors.New("error fetching status for server")
+	}
+
+	playerInfo, err := client.QueryPlayer()
+	if err != nil {
+		return CsServerStatusResponse{}, errors.New("error fetching status for server")
+	}
+
+	ping, err := pingServer(payload.IpAddress)
+	if err != nil {
+		return CsServerStatusResponse{}, errors.New("error pinging server")
+	}
+
+	mapImage := fmt.Sprintf("https://image.gametracker.com/images/maps/160x120/cs/%s.jpg", serverInfo.Map)
+	return CsServerStatusResponse{
+		ServerInfo: ServerInfo{
+			Details:  serverInfo,
+			MapImage: mapImage,
+		},
+		PlayerInfo: playerInfo,
+		Ping:       ping,
+	}, nil
 }

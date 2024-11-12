@@ -1,4 +1,8 @@
 github.com/go-chi/chi/v5 v5.1.0 h1:acVI1TYaD+hhedDJ3r54HyA6sExp3HfXq7QWEEY/xMw=
 github.com/go-chi/chi/v5 v5.1.0/go.mod h1:DslCQbL2OYiznFReuXYUmQ2hGd1aDpCnlMNITLSKoi8=
+github.com/gorcon/rcon v1.3.5 h1:YE/Vrw6R99uEP08wp0EjdPAP3Jwz/ys3J8qxI1nYoeU=
+github.com/gorcon/rcon v1.3.5/go.mod h1:zR1qfKZttF8vAgH1NsP6CdpachOvLDq8jE64NboTpIM=
 github.com/mattn/go-sqlite3 v1.14.24 h1:tpSp2G2KyMnnQu99ngJ47EIkWVmliIizyZBfPrBWDRM=
 github.com/mattn/go-sqlite3 v1.14.24/go.mod h1:Uh1q+B4BYcTPb+yiD3kU8Ct7aC0hY9fxUwlHK0RXw+Y=
+github.com/rumblefrog/go-a2s v1.0.2 h1:rT/QP/B+h2R9/3PEfmOkWPdHnEKExskOMPTTkeX+vuA=
+github.com/rumblefrog/go-a2s v1.0.2/go.mod h1:6nq//LMUMa3ElowQ7eH8atnDbQG+nVMFsaMFzSo8p/M=

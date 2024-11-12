@@ -39,3 +39,36 @@ func (h *CsHandler) RegisterServerHandler(w http.ResponseWriter, r *http.Request
 
 	json.NewEncoder(w).Encode(&RegisterServerHandlerResponse{Port: port})
 }
+
+func (h *CsHandler) GetServerList(w http.ResponseWriter, r *http.Request) {
+	serverList, err := h.csService.GetServerList(r.Context())
+	if err != nil {
+		http.Error(w, "Failed to get server list", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusCreated)
+	w.Header().Set("Content-Type", "application/json")
+
+	json.NewEncoder(w).Encode(serverList)
+}
+
+func (h *CsHandler) GetServerStatus(w http.ResponseWriter, r *http.Request) {
+	ipAddress := r.URL.Query().Get("ipAddress")
+
+	if ipAddress == "" {
+		http.Error(w, "Missing 'ipAddress' parameter", http.StatusBadRequest)
+		return
+	}
+
+	info, err := h.csService.GetServerStatus(r.Context(), service.CsServerStatusPayload{IpAddress: ipAddress})
+	if err != nil {
+		http.Error(w, "Failed to get server status", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusCreated)
+	w.Header().Set("Content-Type", "application/json")
+
+	json.NewEncoder(w).Encode(info)
+}

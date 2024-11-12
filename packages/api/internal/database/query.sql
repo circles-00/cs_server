@@ -12,3 +12,7 @@ INSERT INTO servers(max_players, start_map) VALUES(?, ?) RETURNING *;
 
 -- name: UpdatePort :exec
 UPDATE ports SET server_id=? WHERE id=?;
+
+-- name: GetServers :many
+SELECT s.*, p.port FROM servers s
+JOIN ports p on s.id = p.server_id;

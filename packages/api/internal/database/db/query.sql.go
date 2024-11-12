@@ -74,6 +74,48 @@ func (q *Queries) GetPorts(ctx context.Context) ([]Port, error) {
 	return items, nil
 }
 
+const getServers = `-- name: GetServers :many
+SELECT s.id, s.max_players, s.start_map, s.created_at, p.port FROM servers s
+JOIN ports p on s.id = p.server_id
+`
+
+type GetServersRow struct {
+	ID         int64
+	MaxPlayers sql.NullInt64
+	StartMap   sql.NullString
+	CreatedAt  sql.NullTime
+	Port       int64
+}
+
+func (q *Queries) GetServers(ctx context.Context) ([]GetServersRow, error) {
+	rows, err := q.db.QueryContext(ctx, getServers)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetServersRow
+	for rows.Next() {
+		var i GetServersRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.MaxPlayers,
+			&i.StartMap,
+			&i.CreatedAt,
+			&i.Port,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const insertPort = `-- name: InsertPort :exec
 INSERT INTO ports(port) VALUES(?)
 `
