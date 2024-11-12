@@ -1,0 +1,13 @@
+services:
+  server:
+    platform: linux/amd64
+    build: .
+    image: cs_server:${PORT}
+    container_name: cs_server-${PORT}
+    environment:
+      - PORT
+      - MAP=de_dust2
+      - MAX_PLAYERS=32
+    ports:
+      - ${PORT}:${PORT}/udp
+    # Maybe add volumes for persistence, but for what we are doing rn we don't need any persistence
