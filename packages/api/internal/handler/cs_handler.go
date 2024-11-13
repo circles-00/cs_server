@@ -43,7 +43,7 @@ func (h *CsHandler) GetServerList(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusCreated)
+	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")
 
 	json.NewEncoder(w).Encode(serverList)
@@ -63,7 +63,7 @@ func (h *CsHandler) GetServerStatus(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusCreated)
+	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")
 
 	json.NewEncoder(w).Encode(info)
