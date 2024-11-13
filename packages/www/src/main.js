@@ -19,6 +19,7 @@ const setState = (newState) => {
 /** @param {StateListener} listener **/
 const subscribe = (listener) => {
   listeners.push(listener)
+  listener(state)
 }
 
 /**
@@ -83,8 +84,6 @@ const initializeServerList = async () => {
       table.appendChild(row)
     })
   })
-
-  await fetchServerList()
 }
 
 /** @param {RegisterServerResponse} serverInfo **/
@@ -252,3 +251,4 @@ initializeServerList()
 initializeRegisterServerForm()
 initializeCopyButtonsListeners()
 initializeSavedServerDetails()
+fetchServerList()
