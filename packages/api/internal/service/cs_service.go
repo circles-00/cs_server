@@ -32,8 +32,9 @@ type CsService struct {
 }
 
 type ServerInfo struct {
-	Details  *a2s.ServerInfo
-	MapImage string
+	Details   *a2s.ServerInfo
+	MapImage  string
+	IpAddress string
 }
 
 type CsServerStatusResponse struct {
@@ -63,7 +64,8 @@ func getContainerName(portNumber int) string {
 }
 
 func createNewCsServer(maxPlayers int, portNumber int, adminNickname, adminPassword string) {
-	dockerfilePath := os.Getenv("DOCKERFILE_PATH")
+	rootPath := os.Getenv("ROOT_PATH")
+	dockerfilePath := fmt.Sprintf("%s/packages/cstrike", rootPath)
 
 	envVars := map[string]string{
 		"PORT":           fmt.Sprint(portNumber),
@@ -251,12 +253,12 @@ func (s *CsService) GetServerStatus(ctx context.Context, payload CsServerStatusP
 
 	serverInfo, err := client.QueryInfo()
 	if err != nil {
-		return CsServerStatusResponse{}, errors.New("error fetching status for server")
+		return CsServerStatusResponse{}, fmt.Errorf("error fetching status for server %s", err.Error())
 	}
 
 	playerInfo, err := client.QueryPlayer()
 	if err != nil {
-		return CsServerStatusResponse{}, errors.New("error fetching status for server")
+		return CsServerStatusResponse{}, fmt.Errorf("error fetching status for server %s", err.Error())
 	}
 
 	ping, err := pingServer(payload.IpAddress)
@@ -267,8 +269,9 @@ func (s *CsService) GetServerStatus(ctx context.Context, payload CsServerStatusP
 	mapImage := fmt.Sprintf("https://image.gametracker.com/images/maps/160x120/cs/%s.jpg", serverInfo.Map)
 	return CsServerStatusResponse{
 		ServerInfo: ServerInfo{
-			Details:  serverInfo,
-			MapImage: mapImage,
+			Details:   serverInfo,
+			MapImage:  mapImage,
+			IpAddress: payload.IpAddress,
 		},
 		PlayerInfo: playerInfo,
 		Ping:       ping,

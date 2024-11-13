@@ -4,3 +4,6 @@ packages/cstrike/server/*
 
 **/.env
 **/*.db
+
+packages/www/node_modules
+packages/www/src/css/output.css

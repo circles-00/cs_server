@@ -27,19 +27,23 @@ func runCron(ctx context.Context, queries *db.Queries, csService *service.CsServ
 		servers, _ := queries.GetServers(ctx)
 
 		for _, s := range servers {
-			serverStatus, _ := csService.GetServerStatus(ctx, service.CsServerStatusPayload{IpAddress: fmt.Sprintf("%s:%d", ipAddress, s.Port)})
-
-			if !s.ExpiresAt.Time.Before(time.Now()) || s.IsDemo.Bool {
-				return
+			serverStatus, err := csService.GetServerStatus(ctx, service.CsServerStatusPayload{IpAddress: fmt.Sprintf("%s:%d", ipAddress, s.Port)})
+			if err != nil {
+				err := csService.DestroyServer(ctx, s.ID, s.Port)
+				log.Fatalf("Error getting server status %s", err.Error())
 			}
 
-			if s.ExpiresAt.Time.Before(time.Now()) && serverStatus.PlayerInfo.Count == 0 {
+			if !s.ExpiresAt.Time.Before(time.Now().UTC()) || s.IsDemo.Bool {
+				continue
+			}
+
+			if s.ExpiresAt.Time.Before(time.Now().UTC()) && serverStatus.PlayerInfo.Count == 0 {
 				log.Printf("Destroying server...")
 				err := csService.DestroyServer(ctx, s.ID, s.Port)
 				if err != nil {
 					fmt.Printf("Error destroying server %s", err.Error())
 				}
-				return
+				continue
 			}
 
 			// Extend the server for 30 minutes, since there are players playing on it
@@ -56,12 +60,11 @@ func runCron(ctx context.Context, queries *db.Queries, csService *service.CsServ
 	}
 
 	c.Start()
-
-	// select {}
 }
 
 func main() {
-	const dbFile string = "cs.db"
+	rootPath := os.Getenv("ROOT_PATH")
+	dbFile := fmt.Sprintf("%s/packages/api/cs.db", rootPath)
 	var ddl string
 
 	PORT := 5000
@@ -91,7 +94,7 @@ func main() {
 
 	r := router.NewRouter(csHandler)
 
-	log.Printf("Server listening on port %d\n", PORT)
+	log.Printf("API Server listening on port %d\n", PORT)
 
 	err = http.ListenAndServe(fmt.Sprintf(":%d", PORT), r)
 	if err != nil {
