@@ -100,7 +100,7 @@ func (q *Queries) GetPorts(ctx context.Context) ([]Port, error) {
 }
 
 const getServers = `-- name: GetServers :many
-SELECT s.id, s.max_players, s.admin_nickname, s.admin_password, s.expires_at, s.created_at, p.port FROM servers s
+SELECT s.id, s.max_players, s.admin_nickname, s.admin_password, s.expires_at, s.created_at, s.is_demo, p.port FROM servers s
 JOIN ports p on s.id = p.server_id
 `
 
@@ -111,6 +111,7 @@ type GetServersRow struct {
 	AdminPassword string
 	ExpiresAt     sql.NullTime
 	CreatedAt     sql.NullTime
+	IsDemo        sql.NullBool
 	Port          int64
 }
 
@@ -130,6 +131,7 @@ func (q *Queries) GetServers(ctx context.Context) ([]GetServersRow, error) {
 			&i.AdminPassword,
 			&i.ExpiresAt,
 			&i.CreatedAt,
+			&i.IsDemo,
 			&i.Port,
 		); err != nil {
 			return nil, err
@@ -155,7 +157,7 @@ func (q *Queries) InsertPort(ctx context.Context, port int64) error {
 }
 
 const insertServer = `-- name: InsertServer :one
-INSERT INTO servers(max_players, admin_nickname, admin_password) VALUES(?, ?, ?) RETURNING id, max_players, admin_nickname, admin_password, expires_at, created_at
+INSERT INTO servers(max_players, admin_nickname, admin_password) VALUES(?, ?, ?) RETURNING id, max_players, admin_nickname, admin_password, expires_at, created_at, is_demo
 `
 
 type InsertServerParams struct {
@@ -174,6 +176,7 @@ func (q *Queries) InsertServer(ctx context.Context, arg InsertServerParams) (Ser
 		&i.AdminPassword,
 		&i.ExpiresAt,
 		&i.CreatedAt,
+		&i.IsDemo,
 	)
 	return i, err
 }

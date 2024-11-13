@@ -22,4 +22,5 @@ type Server struct {
 	AdminPassword string
 	ExpiresAt     sql.NullTime
 	CreatedAt     sql.NullTime
+	IsDemo        sql.NullBool
 }

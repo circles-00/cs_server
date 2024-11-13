@@ -29,7 +29,7 @@ func runCron(ctx context.Context, queries *db.Queries, csService *service.CsServ
 		for _, s := range servers {
 			serverStatus, _ := csService.GetServerStatus(ctx, service.CsServerStatusPayload{IpAddress: fmt.Sprintf("%s:%d", ipAddress, s.Port)})
 
-			if !s.ExpiresAt.Time.Before(time.Now()) {
+			if !s.ExpiresAt.Time.Before(time.Now()) || s.IsDemo.Bool {
 				return
 			}
 

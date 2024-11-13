@@ -24,3 +24,5 @@ CREATE TABLE ports (
   server_id INTEGER,
   FOREIGN KEY(server_id) REFERENCES servers(id) ON DELETE SET NULL
 );
+
+ALTER TABLE servers ADD COLUMN is_demo BOOLEAN DEFAULT FALSE;
