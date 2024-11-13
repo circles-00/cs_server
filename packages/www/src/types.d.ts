@@ -50,4 +50,10 @@ declare global {
     AdminNickname: string
     AdminPassword: string
   }
+
+  type State = {
+    serverList: ServerInfoResponse[]
+  }
+
+  type StateListener = (newState: State) => void
 }
