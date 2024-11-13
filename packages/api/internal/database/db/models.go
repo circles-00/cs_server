@@ -16,8 +16,10 @@ type Port struct {
 }
 
 type Server struct {
-	ID         int64
-	MaxPlayers sql.NullInt64
-	StartMap   sql.NullString
-	CreatedAt  sql.NullTime
+	ID            int64
+	MaxPlayers    sql.NullInt64
+	AdminNickname string
+	AdminPassword string
+	ExpiresAt     sql.NullTime
+	CreatedAt     sql.NullTime
 }

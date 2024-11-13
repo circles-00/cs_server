@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
+	"time"
 
 	"api/internal/database/db"
 	"api/internal/handler"
@@ -13,7 +15,50 @@ import (
 	"api/internal/service"
 
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/robfig/cron/v3"
 )
+
+func runCron(ctx context.Context, queries *db.Queries, csService *service.CsService) {
+	ipAddress := os.Getenv("IP_ADDRESS")
+	c := cron.New()
+
+	_, err := c.AddFunc("* * * * *", func() {
+		log.Println("Running cron job...")
+		servers, _ := queries.GetServers(ctx)
+
+		for _, s := range servers {
+			serverStatus, _ := csService.GetServerStatus(ctx, service.CsServerStatusPayload{IpAddress: fmt.Sprintf("%s:%d", ipAddress, s.Port)})
+
+			if !s.ExpiresAt.Time.Before(time.Now()) {
+				return
+			}
+
+			if s.ExpiresAt.Time.Before(time.Now()) && serverStatus.PlayerInfo.Count == 0 {
+				log.Printf("Destroying server...")
+				err := csService.DestroyServer(ctx, s.ID, s.Port)
+				if err != nil {
+					fmt.Printf("Error destroying server %s", err.Error())
+				}
+				return
+			}
+
+			// Extend the server for 30 minutes, since there are players playing on it
+			log.Printf("Extending server...")
+			queries.UpdateServerExpiration(ctx, db.UpdateServerExpirationParams{
+				ExpiresAt: sql.NullTime{Time: time.Now().UTC().Add(30 * time.Minute), Valid: true},
+				ID:        s.ID,
+			})
+		}
+	})
+	if err != nil {
+		fmt.Println("Error scheduling job:", err)
+		return
+	}
+
+	c.Start()
+
+	// select {}
+}
 
 func main() {
 	const dbFile string = "cs.db"
@@ -31,10 +76,17 @@ func main() {
 		panic(err)
 	}
 
+	// Make FKs work
+	database.Exec("PRAGMA foreign_keys = ON")
+
 	queries := db.New(database)
+
 	db.SeedPorts(ctx, queries)
 
 	csService := service.NewCsService(queries)
+
+	runCron(ctx, queries, csService)
+
 	csHandler := handler.NewCsHandler(csService)
 
 	r := router.NewRouter(csHandler)

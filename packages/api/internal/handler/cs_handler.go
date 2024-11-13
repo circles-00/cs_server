@@ -11,10 +11,6 @@ type CsHandler struct {
 	csService *service.CsService
 }
 
-type RegisterServerHandlerResponse struct {
-	Port int `json:"port"`
-}
-
 func NewCsHandler(csService *service.CsService) *CsHandler {
 	return &CsHandler{
 		csService: csService,
@@ -28,7 +24,7 @@ func (h *CsHandler) RegisterServerHandler(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	port, err := h.csService.RegisterServer(r.Context(), server)
+	s, err := h.csService.RegisterServer(r.Context(), server)
 	if err != nil {
 		http.Error(w, "Failed to create server", http.StatusInternalServerError)
 		return
@@ -37,7 +33,7 @@ func (h *CsHandler) RegisterServerHandler(w http.ResponseWriter, r *http.Request
 	w.WriteHeader(http.StatusCreated)
 	w.Header().Set("Content-Type", "application/json")
 
-	json.NewEncoder(w).Encode(&RegisterServerHandlerResponse{Port: port})
+	json.NewEncoder(w).Encode(s)
 }
 
 func (h *CsHandler) GetServerList(w http.ResponseWriter, r *http.Request) {

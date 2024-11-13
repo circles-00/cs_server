@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"math/rand"
 	"net"
 	"os"
 	"os/exec"
@@ -17,8 +18,8 @@ import (
 )
 
 type CsServerPayload struct {
-	StartMap   string
-	MaxPlayers int
+	MaxPlayers    int
+	AdminNickname string
 }
 
 type CsServerStatusPayload struct {
@@ -41,26 +42,44 @@ type CsServerStatusResponse struct {
 	Ping       int
 }
 
+type RegisterServerResponse struct {
+	IpAddress     string
+	AdminNickname string
+	AdminPassword string
+}
+
+const (
+	defaultStartMap = "de_dust2"
+)
+
 func NewCsService(db *db.Queries) *CsService {
 	return &CsService{
 		db: db,
 	}
 }
 
-func createNewCsServer(startMap string, maxPlayers int, portNumber int) {
+func getContainerName(portNumber int) string {
+	return fmt.Sprintf("cs_server-%d", portNumber)
+}
+
+func createNewCsServer(maxPlayers int, portNumber int, adminNickname, adminPassword string) {
 	dockerfilePath := os.Getenv("DOCKERFILE_PATH")
 
 	envVars := map[string]string{
-		"PORT":        fmt.Sprint(portNumber),
-		"MAX_PLAYERS": fmt.Sprint(maxPlayers),
-		"START_MAP":   startMap,
+		"PORT":           fmt.Sprint(portNumber),
+		"MAX_PLAYERS":    fmt.Sprint(maxPlayers),
+		"START_MAP":      defaultStartMap,
+		"ADMIN_NICKNAME": adminNickname,
+		"ADMIN_PASSWORD": adminPassword,
 	}
 
-	containerName := fmt.Sprintf("cs_server-%d", portNumber)
+	containerName := getContainerName(portNumber)
 
 	buildCmd := exec.Command(
 		"docker",
 		"build",
+		"--build-arg", fmt.Sprintf("%s=%s", "ADMIN_NICKNAME", envVars["ADMIN_NICKNAME"]),
+		"--build-arg", fmt.Sprintf("%s=%s", "ADMIN_PASSWORD", envVars["ADMIN_PASSWORD"]),
 		"-t",
 		containerName,
 		dockerfilePath,
@@ -90,20 +109,32 @@ func createNewCsServer(startMap string, maxPlayers int, portNumber int) {
 	}
 }
 
-func (s *CsService) RegisterServer(ctx context.Context, csServer CsServerPayload) (int, error) {
+// TODO: Move as a util fn
+func generateRandomString(n int) string {
+	letters := []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+	b := make([]rune, n)
+	for i := range b {
+		b[i] = letters[rand.Intn(len(letters))]
+	}
+	return string(b)
+}
+
+func (s *CsService) RegisterServer(ctx context.Context, csServer CsServerPayload) (RegisterServerResponse, error) {
 	ports, err := s.db.GetAvailablePorts(ctx)
 	if err != nil || len(ports) == 0 {
-		return -1, errors.New("no more available ports, please try again later")
+		return RegisterServerResponse{}, errors.New("no more available ports, please try again later")
 	}
 
 	// TODO: Create an algorithm for choosing from available ports
 	availablePort := ports[0]
 
-	createNewCsServer(csServer.StartMap, csServer.MaxPlayers, int(availablePort.Port))
+	adminPassword := generateRandomString(10)
+	createNewCsServer(csServer.MaxPlayers, int(availablePort.Port), csServer.AdminNickname, adminPassword)
 
 	server, _ := s.db.InsertServer(ctx, db.InsertServerParams{
-		MaxPlayers: sql.NullInt64{Int64: int64(csServer.MaxPlayers), Valid: true},
-		StartMap:   sql.NullString{String: csServer.StartMap, Valid: true},
+		MaxPlayers:    sql.NullInt64{Int64: int64(csServer.MaxPlayers), Valid: true},
+		AdminNickname: csServer.AdminNickname,
+		AdminPassword: adminPassword,
 	})
 
 	s.db.UpdatePort(ctx, db.UpdatePortParams{
@@ -111,7 +142,12 @@ func (s *CsService) RegisterServer(ctx context.Context, csServer CsServerPayload
 		ID:       int64(availablePort.ID),
 	})
 
-	return int(availablePort.Port), nil
+	machineIpAddress := os.Getenv("IP_ADDRESS")
+	return RegisterServerResponse{
+		IpAddress:     fmt.Sprintf("%s:%d", machineIpAddress, availablePort.Port),
+		AdminNickname: server.AdminNickname,
+		AdminPassword: server.AdminPassword,
+	}, nil
 }
 
 func pingServer(ipAddress string) (int, error) {
@@ -149,6 +185,45 @@ func pingServer(ipAddress string) (int, error) {
 	averageLatency := totalTime / tries
 
 	return averageLatency, nil
+}
+
+func (s *CsService) DestroyServer(ctx context.Context, serverId int64, port int64) error {
+	stopCmd := exec.Command(
+		"docker",
+		"stop",
+		getContainerName(int(port)),
+	)
+
+	rmCmd := exec.Command(
+		"docker",
+		"rm",
+		getContainerName(int(port)),
+	)
+
+	_, err := stopCmd.Output()
+	if err != nil {
+		return errors.New("cannot stop server")
+	}
+
+	_, err = rmCmd.Output()
+
+	if err != nil {
+		return errors.New("cannot remove server")
+	}
+	portFromDb, _ := s.db.GetPortByValue(ctx, port)
+
+	err = s.db.DeleteServer(ctx, serverId)
+
+	if err != nil {
+		return errors.New("cannot delete server from db" + err.Error())
+	}
+	err = s.db.ResetPort(ctx, portFromDb.ID)
+
+	if err != nil {
+		return errors.New("cannot reset port from db")
+	}
+
+	return nil
 }
 
 func (s *CsService) GetServerList(ctx context.Context) ([]CsServerStatusResponse, error) {

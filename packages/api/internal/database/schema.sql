@@ -1,14 +1,26 @@
 CREATE TABLE servers (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   max_players INTEGER,
-  start_map VARCHAR(255),
+  admin_nickname VARCHAR(255) NOT NULL,
+  admin_password VARCHAR(255) NOT NULL,
+  expires_at TIMESTAMP,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TRIGGER set_event_time_default
+AFTER INSERT ON servers
+FOR EACH ROW
+WHEN NEW.expires_at IS NULL
+BEGIN
+    UPDATE servers
+    SET expires_at = DATETIME(CURRENT_TIMESTAMP, '+1 hour')
+    WHERE id = NEW.id;
+END;
 
 CREATE TABLE ports (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   port INTEGER UNIQUE NOT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   server_id INTEGER,
-  FOREIGN KEY(server_id) REFERENCES servers(id)
+  FOREIGN KEY(server_id) REFERENCES servers(id) ON DELETE SET NULL
 );
