@@ -6,45 +6,45 @@
     <link href="./css/output.css" rel="stylesheet">
   </head>
   <body class="bg-gray-950">
-    <main class="h-full text-white mx-auto w-full border-blue-800/40 min-[1800px]:max-w-[1536px] min-[1800px]:border-x">
-      <section class="mx-auto px-10 py-20 border-b border-blue-800/40">
+    <main class="h-full text-white mx-auto w-full border-blue-800/70 lg:border-blue-800/40 min-[1800px]:max-w-[1536px] min-[1800px]:border-x">
+      <section class="mx-auto px-10 py-20 border-b border-blue-800/70 lg:border-blue-800/40">
         <div class="flex flex-col gap-5">
-          <h1 class="text-3xl font-bold">Rent Counter-Strike Servers for Free</h1>
-          <p class="text-xl max-w-[50rem]">
+          <h1 class="text-5xl lg:text-3xl font-bold">Rent Counter-Strike Servers for Free</h1>
+          <p class="text-3xl leading-10 lg:text-xl max-w-[50rem]">
           We're offering free Counter-Strike servers for a limited time,
           giving everyone the chance to come together, play, and enjoy a
           seamless gaming experience.
           </p>
         </div>
       </section>
-      <section class="mx-auto px-10 py-20 border-b border-blue-800/40">
+      <section class="mx-auto px-10 py-20 border-b border-blue-800/70 lg:border-blue-800/40">
         <div class="flex flex-col gap-5">
-          <h1 class="text-2xl font-bold">Get Started</h1>
-          <p class="text-lg max-w-[50rem]">
+          <h1 class="text-4xl lg:text-2xl font-bold">Get Started</h1>
+          <p class="text-2xl lg:text-lg max-w-[50rem]">
           Get access to your very own game server in just <span class="text-blue-800 font-bold">seconds</span>
           </p>
-        <section id="success-section" class="hidden flex-col gap-4">
-            <h1 class="text-2xl font-bold">Success!</h1>
-            <p class="text-lg max-w-[50rem]">
+          <section id="success-section" class="hidden flex-col gap-4">
+            <h1 class="text-4xl lg:text-2xl font-bold">Success!</h1>
+            <p class="text-2xl lg:text-lg max-w-[50rem] leading-10">
             You have successfully provisioned your game server! <br>
             You can copy the details for the newly created game server bellow. <br>
             To claim the admin, set the nickname in-game and also, run <span class="text-blue-800 font-bold">setinfo _pw &ltthe_password_bellow&gt</span><br>
             </p>
             <div class="flex flex-col gap-2">
-              <div class="flex flex-col gap-2">
+              <div class="flex flex-col gap-2 text-2xl lg:text-base">
                 <label for="ipAddress">IP Address</label>
-                <div class="flex items-center relative w-1/4">
-                  <input id="copy-ip-input" name="ipAddress" class="hover:cursor-not-allowed w-full rounded-md bg-gray-950 border border-blue-800/40 p-2" minlength="2" maxlength="32" required placeholder="127.0.0.1:27015" disabled />
+                <div class="flex items-center relative w-1/3 lg:w-1/4">
+                  <input id="copy-ip-input" name="ipAddress" class="hover:cursor-not-allowed w-full rounded-md bg-gray-950 border border-blue-800/70 lg:border-blue-800/40 p-2" minlength="2" maxlength="32" required placeholder="127.0.0.1:27015" disabled />
                   <button id="copy-ip" class="absolute right-4">
                     <img id="copy-ip-copy" src="img/copy-solid.svg" alt="Copy Button" height="20" width="20"/>
                     <img id="copy-ip-check" src="img/check-solid.svg" alt="Check Button" height="20" width="20" class="hidden" />
                   </button>
                 </div>
               </div>
-              <div class="flex flex-col gap-2">
+              <div class="flex flex-col gap-2 text-2xl lg:text-base">
                 <label for="adminNickname">Admin Nickname</label>
-                <div class="flex items-center relative w-1/4">
-                  <input id="copy-nick-input" name="adminNickname" class="hover:cursor-not-allowed w-full rounded-md bg-gray-950 border border-blue-800/40 p-2" minlength="2" maxlength="32" required placeholder="John Doe" disabled />
+                <div class="flex items-center relative w-1/3 lg:w-1/4">
+                  <input id="copy-nick-input" name="adminNickname" class="hover:cursor-not-allowed w-full rounded-md bg-gray-950 border border-blue-800/70 lg:border-blue-800/40 p-2" minlength="2" maxlength="32" required placeholder="John Doe" disabled />
                   <button id="copy-nick" class="absolute right-4">
                     <img id="copy-nick-copy" src="img/copy-solid.svg" alt="Copy Button" height="20" width="20"/>
                     <img id="copy-nick-check" src="img/check-solid.svg" alt="Check Button" height="20" width="20" class="hidden" />
@@ -52,10 +52,10 @@
                 </div>
               </div>
 
-              <div class="flex flex-col gap-2">
+              <div class="flex flex-col gap-2 text-2xl lg:text-base">
                 <label for="adminPassword">Admin Password</label>
-                <div class="flex items-center relative w-1/4">
-                  <input id="copy-pw-input" name="adminPassword" class="hover:cursor-not-allowed w-full rounded-md bg-gray-950 border border-blue-800/40 p-2" minlength="2" maxlength="32" required placeholder="pfxZzddbYy" disabled />
+                <div class="flex items-center relative w-1/3 lg:w-1/4">
+                  <input id="copy-pw-input" name="adminPassword" class="hover:cursor-not-allowed w-full rounded-md bg-gray-950 border border-blue-800/70 lg:border-blue-800/40 p-2" minlength="2" maxlength="32" required placeholder="pfxZzddbYy" disabled />
                   <button id="copy-pw" class="absolute right-4">
                     <img id="copy-pw-copy" src="img/copy-solid.svg" alt="Copy Button" height="20" width="20"/>
                     <img id="copy-pw-check" src="img/check-solid.svg" alt="Check Button" height="20" width="20" class="hidden" />
@@ -65,31 +65,30 @@
             </div>
           </section>
           <form id="register-server-form" class="flex flex-col gap-5">
-            <div class="flex flex-col gap-2">
+            <div class="flex flex-col gap-2 text-2xl lg:text-base">
               <label for="max-players">Max Players</label>
-              <input id="max-players" name="maxPlayers" class="w-1/4 rounded-md bg-gray-950 border border-blue-800/40 p-2" type="number" min="0" max="32" required placeholder="32"/>
+              <input id="max-players" name="maxPlayers" class="w-1/3 lg:w-1/4 rounded-md bg-gray-950 border border-blue-800/70 lg:border-blue-800/40 p-2" type="number" min="0" max="32" required placeholder="32"/>
             </div>
-            <div class="flex flex-col gap-2">
+            <div class="flex flex-col gap-2 text-2xl lg:text-base">
               <label for="nickname">Admin Nickname</label>
-              <input id="nickname" name="adminNickname" class="w-1/4 rounded-md bg-gray-950 border border-blue-800/40 p-2" minlength="2" maxlength="32" required placeholder="John Doe"/>
+              <input id="nickname" name="adminNickname" class="w-1/3 lg:w-1/4 rounded-md bg-gray-950 border border-blue-800/70 lg:border-blue-800/40 p-2" minlength="2" maxlength="32" required placeholder="John Doe"/>
             </div>
-            <div class="flex flex-col gap-2 w-1/4">
+            <div class="flex flex-col gap-2 w-1/4 text-2xl lg:text-base">
               <button id="submit-btn" class="rounded-md text-white bg-blue-800 w-full" style="padding: 5px 0px;">
                 <svg id="submit-svg" class="animate-spin h-5 w-5 mr-3 hidden" viewBox="0 0 24 24">
                 </svg>
                 Submit
-                </button>
+              </button>
               <p id="submit-info" class="text-center hidden">This process may take a while, please wait!</p>
             </div>
           </form>
         </div>
       </section>
-      <section class="my-20 mx-10 p-10 border border-blue-800/40 rounded-lg">
+      <section class="my-20 mx-10 p-10 border border-blue-800/70 lg:border-blue-800/40 rounded-lg">
         <div class="flex flex-col gap-5">
-          <h1 class="text-3xl">Online Servers</h1>
-          <table id="server-list" class="text-white border-collapse">
-                    </table>
-
+          <h1 class="text-4xl lg:text-3xl">Online Servers</h1>
+          <table id="server-list" class="text-white border-collapse text-xl lg:text-base">
+          </table>
         </div>
       </section>
     </main>

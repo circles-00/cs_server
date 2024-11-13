@@ -23,11 +23,11 @@ const initializeServerList = async () => {
   table.innerHTML = ""
 
   const thead = `<tr>
-    <th class="border border-solid border-blue-800/40 p-2 text-center">Name</th>
-    <th class="border border-solid border-blue-800/40 p-2 text-center">Players</th>
-    <th class="border border-solid border-blue-800/40 p-2 text-center">IP Address:Port</th>
-    <th class="border border-solid border-blue-800/40 p-2 text-center">Ping</th>
-    <th class="border border-solid border-blue-800/40 p-2 text-center">Map</th>
+    <th class="border border-solid border-blue-800/70 lg:border-blue-800/40 p-2 text-center">Name</th>
+    <th class="border border-solid border-blue-800/70 lg:border-blue-800/40 p-2 text-center">Players</th>
+    <th class="border border-solid border-blue-800/70 lg:border-blue-800/40 p-2 text-center">IP Address:Port</th>
+    <th class="border border-solid border-blue-800/70 lg:border-blue-800/40 p-2 text-center">Ping</th>
+    <th class="border border-solid border-blue-800/70 lg:border-blue-800/40 p-2 text-center">Map</th>
     </tr>`
 
   const tableHead = document.createElement("thead")
@@ -44,11 +44,11 @@ const initializeServerList = async () => {
     const map = ServerInfo.Details.Map
 
     const rowData = `
-      <td class="border-[1px] border-solid border-blue-800/40 p-2 text-center">${serverName}</td>
-      <td class="border-[1px] border-solid border-blue-800/40 p-2 text-center">${players}</td>
-      <td class="border-[1px] border-solid border-blue-800/40 p-2 text-center">${ipAddress}</td>
-      <td class="border-[1px] border-solid border-blue-800/40 p-2 text-center">${ping}</td>
-      <td class="border-b border-blue-800/40 border-r flex flex-col p-2 gap-2">
+      <td class="border-[1px] border-solid border-blue-800/70 lg:border-blue-800/40 p-2 text-center">${serverName}</td>
+      <td class="border-[1px] border-solid border-blue-800/70 lg:border-blue-800/40 p-2 text-center">${players}</td>
+      <td class="border-[1px] border-solid border-blue-800/70 lg:border-blue-800/40 p-2 text-center">${ipAddress}</td>
+      <td class="border-[1px] border-solid border-blue-800/70 lg:border-blue-800/40 p-2 text-center">${ping}</td>
+      <td class="border-b border-blue-800/70 lg:border-blue-800/40 border-r flex flex-col p-2 gap-2">
       <img src="${mapImage}" alt="Map Image" class="mx-auto">
       <p class="text-center">${map}</p>
       </td>
