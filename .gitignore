@@ -2,4 +2,5 @@ packages/cstrike/server/*
 
 !packages/cstrike/server/.gitkeep
 
-/start_server.sh
+**/.env
+**/*.db
