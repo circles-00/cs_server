@@ -1,3 +1,6 @@
+# Overview
+https://github.com/user-attachments/assets/49c6f8ca-bb9b-4c5b-965c-85c3a415e4fb
+
 # Requirements
 An AMD64 CPU is recommended, but you can still run this on other architectures.
 
@@ -27,4 +30,9 @@ sudo iptables -A INPUT -p udp -m udp --sport 27015:27099 --dport 1025:65355 -j A
 3. Start the server:
 ```shell
 ./start.sh
+```
+
+# Running the app
+```shell
+make dev
 ```
