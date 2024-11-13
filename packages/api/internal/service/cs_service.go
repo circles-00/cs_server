@@ -80,6 +80,8 @@ func createNewCsServer(maxPlayers int, portNumber int, adminNickname, adminPassw
 	buildCmd := exec.Command(
 		"docker",
 		"build",
+		"--platform",
+		"linux/amd64",
 		"--build-arg", fmt.Sprintf("%s=%s", "ADMIN_NICKNAME", envVars["ADMIN_NICKNAME"]),
 		"--build-arg", fmt.Sprintf("%s=%s", "ADMIN_PASSWORD", envVars["ADMIN_PASSWORD"]),
 		"-t",
